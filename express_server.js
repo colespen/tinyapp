@@ -4,6 +4,8 @@ const PORT = 8080; // default port 8080
 
 ////    tell Express app to use EJS as its templating engine
 app.set("view engine", "ejs");
+////    middleware which translates and parses body
+app.use(express.urlencoded({ extended: true }));
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -14,22 +16,24 @@ const urlDatabase = {
 app.get("/", (req, res) => {
   res.send("Hello there dumbdumb!");
 });
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase }
   ////    render method responds to requests by sending template and object with data template needs
   res.render("urls_index", templateVars);
 });
+
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new")
+})
   ////    Express route parameters pass data from frontend to backend via request url 
 app.get("/urls/:id", (req, res) => {
   ////    creating variable that stores objects key values from client GETs
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
-  
   res.render("urls_show", templateVars)
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
 });
 
 app.get("/hello", (req, res) => {
