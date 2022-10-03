@@ -14,20 +14,24 @@ const urlDatabase = {
 app.get("/", (req, res) => {
   res.send("Hello there dumbdumb!");
 });
+
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase }
+  ////    render method responds to requests by sending template and object with data template needs
   res.render("urls_index", templateVars);
 });
+  ////    Express route parameters pass data from frontend to backend via request url 
 app.get("/urls/:id", (req, res) => {
-  ////    creating variable that stores objects
+  ////    creating variable that stores objects key values from client GETs
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   
-  console.log(req.params.id);
   res.render("urls_show", templateVars)
 });
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
+
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
