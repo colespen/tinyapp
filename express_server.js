@@ -11,6 +11,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+
 ////////////////////////////////////////////////
 ////    GET Routes
 ////////////////////////////////////////////////
@@ -44,7 +45,6 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
-  ////    pull last key (newest) ??better way??
   const newKey = req.params.id;
   //params is allowing access of keys or values within the url
   const longURL = urlDatabase[newKey];
@@ -60,10 +60,21 @@ app.get("/u/:id", (req, res) => {
   //// <form> submit assigned via action and method attributes
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
+
   let tinyID = generateRandomString();
-  urlDatabase[tinyID] = req.body.longURL;
+  urlDatabase[tinyID] = req.body.longURL; //--> add new key: value to obj
+
   res.redirect(`/urls/${tinyID}`);
 });
+
+app.post("/urls/:id/delete", (req, res) => {
+  console.log(req.params.id);
+
+  const keyDel = req.params.id;
+  delete urlDatabase[keyDel];
+
+  res.redirect("/urls");
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
@@ -77,13 +88,13 @@ app.listen(PORT, () => {
 const generateRandomString = () => {
   // 6 characters long
   // generate letters and integers combined together randomly
-  let tinyCode = '';
+  let tinyID = '';
   const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   const charLength = chars.length;
   for (let i = 0; i < 6; i++) {
-    tinyCode += chars.charAt(Math.floor(Math.random() *
+    tinyID += chars.charAt(Math.floor(Math.random() *
       charLength));
   }
-  return tinyCode;
+  return tinyID;
 };
 console.log(generateRandomString());
