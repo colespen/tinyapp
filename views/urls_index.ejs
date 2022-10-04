@@ -30,7 +30,7 @@
         <!--loop through object keys-->
         <% for (let id in urls) { %>
           <form method="POST" action="/urls/<%=id%>/delete" id="deleteURL">
-          <tr>
+          <t>
             <td>
               <a href="/u/<%=id%>"><%=id%></a>
             </td>
@@ -38,7 +38,7 @@
               <%= urls[id] %>
             </td>
             <td>
-              <button form="deleteURL" class="btn-primary">Delete</button>
+              <button type="submit" class="btn btn-primary">Delete</button>
             </td>
           </tr>
         </form>

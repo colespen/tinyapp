@@ -25,7 +25,7 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase }; 
-                    // (loop through urls keys in index)
+                    // (loop through urls keys in index.ejs)
 
   ////    render method responds to requests by sending template and object with data template needs -> obj is paaed to EJS templates
   res.render("urls_index", templateVars);
@@ -34,10 +34,11 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
+
   ////    Express route parameters pass data from frontend to backend via request url
 app.get("/urls/:id", (req, res) => {
 
-  ////    creating variable that stores objects key values from client GETs
+  ////    creating variable that stores object's key:values from client GETs
   const templateVars = 
   { id: req.params.id, longURL: urlDatabase[req.params.id] };
 
@@ -67,14 +68,18 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${tinyID}`);
 });
 
+
+////   removes URL resource (key:value pair) from obj with delete button
 app.post("/urls/:id/delete", (req, res) => {
-  console.log(req.params.id);
+  console.log("Resource removed:", req.params.id);
 
   const keyDel = req.params.id;
   delete urlDatabase[keyDel];
 
   res.redirect("/urls");
 })
+
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
@@ -97,4 +102,3 @@ const generateRandomString = () => {
   }
   return tinyID;
 };
-console.log(generateRandomString());
