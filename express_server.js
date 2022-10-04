@@ -23,7 +23,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { urls: urlDatabase }; // this object passing to ejs templates
   ////    render method responds to requests by sending template and object with data template needs
   res.render("urls_index", templateVars);
 });
@@ -40,6 +40,14 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.get("/u/:id", (req, res) => {
+  ////    pull last key (newest) ??better way??
+  lastKey = req.params.id; //params is allowing to access the keys or values within the url
+  const longURL = urlDatabase[lastKey];
+  ////    link new short ID to longURL
+  res.redirect(longURL);
+});
+
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
@@ -51,7 +59,10 @@ app.get("/hello", (req, res) => {
 //// ???? how is form submit assigned to { longURL: key? }
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  let tinyID = generateRandomString()
+  urlDatabase[tinyID] = req.body.longURL;
+  res.redirect(`/urls/${tinyID}`);
+  // res.send(urlDatabase); // Respond with 'Ok' (we will replace this)
 });
 
 app.listen(PORT, () => {
@@ -60,19 +71,19 @@ app.listen(PORT, () => {
 
 
 ////////////////////////////////////////////////
-////    short URL functions temp location
+////    short-URL-Code function temp location
 ////////////////////////////////////////////////
 
 function generateRandomString() {
   // 6 characters long
   // generate letters and integers combined together randomly
-  let result = '';
+  let tinyCode = '';
   const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   const charLength = chars.length;
   for (var i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() *
+    tinyCode += chars.charAt(Math.floor(Math.random() *
       charLength));
   }
-  return result;
+  return tinyCode;
 }
-console.log(generateRandomString());
+// console.log(urlDatabase);
