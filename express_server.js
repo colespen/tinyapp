@@ -1,11 +1,20 @@
 const express = require("express");
+const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080; // default port 8080
 ////    tell Express app to use EJS as its templating engine ---->
 app.set("view engine", "ejs");
-////    middleware which translates and parses body
+
+////////////////////////////////////////////////
+////    Middleware which translates and parses body
+////////////////////////////////////////////////
+
 app.use(express.urlencoded({ extended: true }));
 
+app.use(cookieParser());
+
+
+////    Demo Database   ////
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -27,7 +36,7 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   // (loop through urls keys in index.ejs)
-  ////    render method responds to requests by sending template and object with data template needs -> obj is paaed to EJS templates
+  ////    render method responds to requests by sending template an object with data template needs -> obj is passed to EJS templates
   res.render("urls_index", templateVars);
 });
 
@@ -68,7 +77,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${tinyID}`);
 });
 
-////   removes URL resource (key:value pair) from obj with delete button
+////   Removes URL resource (key:value pair) from obj with delete button
 app.post("/urls/:id/delete", (req, res) => {
   console.log("------ Resource removed:\n", req.params);
 
@@ -78,6 +87,7 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+////    Edits existing resource
 app.post("/urls/:id", (req, res) => {
   console.log('------ Edited:\n', req.params, req.body);
 
@@ -87,7 +97,15 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("/urls");
 });
 
-
+////    Sets username cookie
+app.post("/login", (req, res) => {
+  console.log('------- User login:\n', req.body);
+  
+  const userName = req.body.username;
+  res.cookie("username", userName);
+  res.redirect("/urls");
+  // 
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
