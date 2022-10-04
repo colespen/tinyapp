@@ -25,8 +25,8 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase }; 
-                    // (loop through urls keys in index.ejs)
+  const templateVars = { urls: urlDatabase };
+  // (loop through urls keys in index.ejs)
   ////    render method responds to requests by sending template and object with data template needs -> obj is paaed to EJS templates
   res.render("urls_index", templateVars);
 });
@@ -35,12 +35,12 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-  ////    Express route parameters pass data from frontend to backend via request url
+////    Express route parameters pass data from frontend to backend via request url
 app.get("/urls/:id", (req, res) => {
 
   ////    creating variable that stores object's key:values from client GETs
-  const templateVars = 
-  { id: req.params.id, longURL: urlDatabase[req.params.id] };
+  const templateVars =
+    { id: req.params.id, longURL: urlDatabase[req.params.id] };
 
   res.render("urls_show", templateVars);
 });
@@ -58,7 +58,7 @@ app.get("/u/:id", (req, res) => {
 ////    POST Routes
 ////////////////////////////////////////////////
 
-  //// <form> submit assigned via action and method attributes
+//// <form> submit assigned via action and method attributes
 app.post("/urls", (req, res) => {
   console.log('------ Added:\n', req.body); // Log the POST request body to the console
 
@@ -76,16 +76,16 @@ app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[keyDel];
 
   res.redirect("/urls");
-})
+});
 
 app.post("/urls/:id", (req, res) => {
-  console.log('------ Edited:\n', req.params, req.body)
+  console.log('------ Edited:\n', req.params, req.body);
 
   const keyMod = req.params.id;
   const valueMod = req.body.longURLupdate;
   urlDatabase[keyMod] = valueMod;
   res.redirect("/urls");
-})
+});
 
 
 
