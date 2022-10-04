@@ -48,9 +48,6 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
 
 ////////////////////////////////////////////////
 ////    POST Routes
@@ -62,7 +59,6 @@ app.post("/urls", (req, res) => {
   let tinyID = generateRandomString()
   urlDatabase[tinyID] = req.body.longURL;
   res.redirect(`/urls/${tinyID}`);
-  // res.send(urlDatabase); // Respond with 'Ok' (we will replace this)
 });
 
 app.listen(PORT, () => {
