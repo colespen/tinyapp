@@ -34,22 +34,31 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies["username"] 
+  };
   // (loop through urls keys in index.ejs)
   ////    render method responds to requests by sending template an object with data template needs -> obj is passed to EJS templates
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies["username"] 
+  };
+  res.render("urls_new", templateVars);
 });
 
 ////    Express route parameters pass data from frontend to backend via request url
 app.get("/urls/:id", (req, res) => {
 
   ////    creating variable that stores object's key:values from client GETs
-  const templateVars =
-    { id: req.params.id, longURL: urlDatabase[req.params.id] };
+  const templateVars = { 
+    id: req.params.id, 
+    longURL: urlDatabase[req.params.id],
+    username: req.cookies["username"]
+  };
 
   res.render("urls_show", templateVars);
 });
