@@ -19,6 +19,7 @@ const urlDatabase = {
 app.get("/", (req, res) => {
   res.send("Hello there human.");
 });
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -26,7 +27,6 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase }; 
                     // (loop through urls keys in index.ejs)
-
   ////    render method responds to requests by sending template and object with data template needs -> obj is paaed to EJS templates
   res.render("urls_index", templateVars);
 });
@@ -60,7 +60,7 @@ app.get("/u/:id", (req, res) => {
 
   //// <form> submit assigned via action and method attributes
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
+  console.log('------ Added:\n', req.body); // Log the POST request body to the console
 
   let tinyID = generateRandomString();
   urlDatabase[tinyID] = req.body.longURL; //--> add new key: value to obj
@@ -68,14 +68,22 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${tinyID}`);
 });
 
-
 ////   removes URL resource (key:value pair) from obj with delete button
 app.post("/urls/:id/delete", (req, res) => {
-  console.log("Resource removed:", req.params.id);
+  console.log("------ Resource removed:\n", req.params);
 
   const keyDel = req.params.id;
   delete urlDatabase[keyDel];
 
+  res.redirect("/urls");
+})
+
+app.post("/urls/:id", (req, res) => {
+  console.log('------ Edited:\n', req.params, req.body)
+
+  const keyMod = req.params.id;
+  const valueMod = req.body.longURLupdate;
+  urlDatabase[keyMod] = valueMod;
   res.redirect("/urls");
 })
 
