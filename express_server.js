@@ -14,11 +14,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 
-////    Demo Database   ////
+////    Database   ////
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+const users = {};
 
 
 ////////////////////////////////////////////////
@@ -73,7 +74,7 @@ app.get("/u/:id", (req, res) => {
 
 app.get("/register", (req, res) => {
   res.render("urls_register");
-})
+});
 
 
 ////////////////////////////////////////////////
@@ -82,7 +83,7 @@ app.get("/register", (req, res) => {
 
   //// <form> submit assigned via action and method attributes
 app.post("/urls", (req, res) => {
-  console.log('------ Added:\n', req.body); // Log the POST request body to the console
+  console.log('---------- Added:\n', req.body); // Log the POST request body to the console
 
   let tinyID = generateRandomString();
   urlDatabase[tinyID] = req.body.longURL; //--> add new key: value to obj
@@ -92,7 +93,7 @@ app.post("/urls", (req, res) => {
 
   ////   Removes URL resource (key:value pair) from obj with delete button
 app.post("/urls/:id/delete", (req, res) => {
-  console.log("------ Resource removed:\n", req.params);
+  console.log("---------- Resource removed:\n", req.params);
 
   const keyDel = req.params.id;
   delete urlDatabase[keyDel];
@@ -102,7 +103,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
   ////    Edits existing resource
 app.post("/urls/:id", (req, res) => {
-  console.log('------ Edited:\n', req.params, req.body);
+  console.log('---------- Edited:\n', req.params, req.body);
 
   const keyMod = req.params.id;
   const valueMod = req.body.longURLupdate;
@@ -112,20 +113,33 @@ app.post("/urls/:id", (req, res) => {
 
 ////    Sets username cookie
 app.post("/login", (req, res) => {
-  console.log('------- User login:\n', req.body);
+  console.log('---------- User login:\n', req.body);
   
   const userName = req.body.username;
   res.cookie("username", userName);
   res.redirect("/urls");
+});
 
-})
   ////    Clears username cookie
 app.post("/logout", (req, res) => {
-  console.log('------- User logout:');
+  console.log('--------- User logout:');
   const userName = req.body.username;
   res.clearCookie("username", userName);
   res.redirect("/urls");
 })
+  ////    Adds new user to object
+app.post("/register", (req, res) => {
+  console.log('---------- User added:');
+  let userID = generateRandomString()+"UserID";
+  users[userID] = { 
+    id: userID,
+    email: req.body.email, 
+    password: req.body.password
+  };
+  res.cookie("user_id", userID);
+  res.redirect("/urls");
+  console.log(users);
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
