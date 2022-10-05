@@ -18,7 +18,7 @@
   <%- include('partials/_header'); %>
     <main style="margin: 1em">
       <h3>My URLs</h3>
-      <table class="table">
+      <table class="table table-hover">
         <thead>
           <tr>
             <th scope="col">Short URL ID</th>
@@ -40,12 +40,12 @@
                 <%= urls[id] %>
               </td>
               <td>
-                <a href="/urls/<%=id%>"><button class="btn btn-primary">Edit</button>
+                <a href="/urls/<%=id%>"><button class="btn btn-outline-primary">Edit</button>
                 </a>
               </td>
               <form method="POST" action="/urls/<%=id%>/delete">
                 <td>
-                  <button class="btn btn-secondary">Delete</button>
+                  <button class="btn btn-outline-danger">Delete</button>
                 </td>
               </form>
               </tr>

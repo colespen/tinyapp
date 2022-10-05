@@ -38,7 +38,7 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     username: req.cookies["username"] 
   };
-  // (loop through urls keys in index.ejs)
+  ////    (loop through urls keys in index.ejs)
   ////    render method responds to requests by sending template an object with data template needs -> obj is passed to EJS templates
   res.render("urls_index", templateVars);
 });
@@ -50,7 +50,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-////    Express route parameters pass data from frontend to backend via request url
+  ////    Express route parameters pass data from frontend to backend via request url
 app.get("/urls/:id", (req, res) => {
 
   ////    creating variable that stores object's key:values from client GETs
@@ -71,12 +71,16 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
+app.get("/register", (req, res) => {
+  res.render("urls_register");
+})
+
 
 ////////////////////////////////////////////////
 ////    POST Routes
 ////////////////////////////////////////////////
 
-//// <form> submit assigned via action and method attributes
+  //// <form> submit assigned via action and method attributes
 app.post("/urls", (req, res) => {
   console.log('------ Added:\n', req.body); // Log the POST request body to the console
 
@@ -86,7 +90,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${tinyID}`);
 });
 
-////   Removes URL resource (key:value pair) from obj with delete button
+  ////   Removes URL resource (key:value pair) from obj with delete button
 app.post("/urls/:id/delete", (req, res) => {
   console.log("------ Resource removed:\n", req.params);
 
@@ -96,7 +100,7 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
-////    Edits existing resource
+  ////    Edits existing resource
 app.post("/urls/:id", (req, res) => {
   console.log('------ Edited:\n', req.params, req.body);
 
@@ -113,9 +117,9 @@ app.post("/login", (req, res) => {
   const userName = req.body.username;
   res.cookie("username", userName);
   res.redirect("/urls");
-  // 
+
 })
-////    Clears username cookie
+  ////    Clears username cookie
 app.post("/logout", (req, res) => {
   console.log('------- User logout:');
   const userName = req.body.username;
