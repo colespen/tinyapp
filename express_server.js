@@ -1,5 +1,7 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
+const morgan = require('morgan');
+
 const app = express();
 const PORT = 8080; // default port 8080
 ////    tell Express app to use EJS as its templating engine ---->
@@ -10,11 +12,12 @@ app.set("view engine", "ejs");
 ////////////////////////////////////////////////
 
 app.use(express.urlencoded({ extended: true }));
-
 app.use(cookieParser());
+app.use(morgan('dev'));
 
-
-////    Database   ////
+////////////////////////////////////////////////
+////    Database 
+////////////////////////////////////////////////
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -35,34 +38,37 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  const user = req.cookies.user_id;
   const templateVars = { 
     urls: urlDatabase,
-    username: req.cookies["username"] 
+    user: users[user]
   };
   ////    (loop through urls keys in index.ejs)
   ////    render method responds to requests by sending template an object with data template needs -> obj is passed to EJS templates
   res.render("urls_index", templateVars);
 });
 
+
 app.get("/urls/new", (req, res) => {
+  const user = req.cookies.user_id;
   const templateVars = {
-    username: req.cookies["username"] 
+    user: users[user]
   };
   res.render("urls_new", templateVars);
 });
 
   ////    Express route parameters pass data from frontend to backend via request url
 app.get("/urls/:id", (req, res) => {
-
-  ////    creating variable that stores object's key:values from client GETs
+  const user = req.cookies.user_id;
   const templateVars = { 
     id: req.params.id, 
     longURL: urlDatabase[req.params.id],
-    username: req.cookies["username"]
+    user: users[user]
   };
 
   res.render("urls_show", templateVars);
 });
+
 
 app.get("/u/:id", (req, res) => {
   const newKey = req.params.id;
@@ -71,6 +77,7 @@ app.get("/u/:id", (req, res) => {
   ////    link new short ID to longURL
   res.redirect(longURL);
 });
+
 
 app.get("/register", (req, res) => {
   res.render("urls_register");
@@ -101,7 +108,7 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
-  ////    Edits existing resource
+  ////    Edits existing URLs resource
 app.post("/urls/:id", (req, res) => {
   console.log('---------- Edited:\n', req.params, req.body);
 
@@ -136,9 +143,9 @@ app.post("/register", (req, res) => {
     email: req.body.email, 
     password: req.body.password
   };
+  console.log(users);
   res.cookie("user_id", userID);
   res.redirect("/urls");
-  console.log(users);
 });
 
 app.listen(PORT, () => {
