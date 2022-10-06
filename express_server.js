@@ -56,7 +56,6 @@ const generateRandomString = () => {
   }
   return tinyID;
 };
-
 ////    looks up user info by email
 const lookupUserByEmail = (email) => {
 
@@ -68,7 +67,20 @@ const lookupUserByEmail = (email) => {
   }
   return null;        //OUTSIDE of Loop!!!
 };
-
+////    filter URLs by matching userID's
+const urlsForUser = (currentUser) => {
+  let urls = {};
+  const ids = Object.keys(urlDatabase); //making array
+  
+  for (const id of ids) {
+    // console.log(url_arr[u].userID);
+    const url = urlDatabase[id]; // each indiv obj in list
+    if (url.userID === currentUser) {
+      urls[id] = url;
+    }
+  }
+  return urls;
+}
 
 
 ////////////////////////////////////////////////////
@@ -76,7 +88,13 @@ const lookupUserByEmail = (email) => {
 ////////////////////////////////////////////////////
 
 app.get("/", (req, res) => {
-  res.send("Hello there human.");
+  const id = req.cookies.user_id;
+  const user = users[id];
+  const templateVars = {
+    urls: urlDatabase,
+    user
+  };
+  res.render("urls_index", templateVars);
 });
 
 app.get("/urls.json", (req, res) => {
@@ -90,44 +108,55 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     user
   };
+  if (!user) {
+    return res.send("Please login first!");
+   }
   ////    (loop through urls keys in index.ejs)
   ////    render method responds to requests by sending template an object with data template needs -> obj is passed to EJS templates
-  // console.log(urlDatabase);
   res.render("urls_index", templateVars);
+  // console.log("* * * * * * * * * * * ", urlDatabase);
 });
 
 
-app.get("/urls/new", (req, res) => { ///FIX REDIRECT****
+app.get("/urls/new", (req, res) => { ///FIX !user REDIRECT*********
   const id = req.cookies.user_id;
   const user = users[id];
   const templateVars = {
     user
   };
-  // if (!user) {
-  //   return res.redirect("/login");
-  // }
+  if (!user) {
+    return res.redirect("/login");
+  }
+  // console.log("GET* * * * * * * * * * * * * * * * * * *",templateVars)
   res.render("urls_new", templateVars);
 });
 
-////    Express route parameters pass data from frontend to backend via request url
+
 app.get("/urls/:id", (req, res) => {
-  const id = req.cookies.user_id;
-  const user = users[id];
+  const user_id = req.cookies.user_id;
+  const user = users[user_id];
+
+  const urlID = req.params.id;
+  const url = urlDatabase[urlID];
+
   const templateVars = {
-    id: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    urlId: urlID,
+    longURL: url.longURL, //(removed longURL)
     user
   };
+  // console.log("GET * * * * * * * * * * * * * * * *", templateVars.longURL);
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
   //params is allowing access of keys or values within the url
-  const url = urlDatabase[id]; 
-  // undefined if not found
-  // direct lookup in objects
-  if (!url) { // if !undefined
+  // console.log("GET* * * * * * * * * * * * * * * *",urlDatabase);
+  const url = urlDatabase[id].longURL; 
+
+  // console.log("GET /u/:id - id* * * * * * * * * * * * * * *", urlDatabase[id].longURL);
+
+  if (!url) { // if !undefined  (direct lookup in obj's)
     return res.send("URL not found.");
   }
   ////    link new short ID to longURL
@@ -161,7 +190,7 @@ app.get("/login", (req, res) => {
 ////////////////////////////////////////////////////
 
 //// <form> submit assigned via action and method attributes
-app.post("/urls", (req, res) => {
+app.post("/urls", (req, res) => { //*********** FIX !user redirect
   console.log('---------- Added:\n', req.body);
 
   const id = req.cookies.user_id;
@@ -169,12 +198,12 @@ app.post("/urls", (req, res) => {
   const tinyID = generateRandomString();
   
   //--> add new key: value to obj
-  urlDatabase[tinyID] = req.body.longURL; 
-  console.log("* * * * * * * * * * * ", req.body.longURL);
-
-  // if (!user) {
-  //   return res.send("Must be a TinyApp user to use this!");
-  // } ****************** FIX res.send() above
+  urlDatabase[tinyID] = req.body; //removed.longURL
+  // console.log("* * * * * * * * * * * ", urlDatabase);
+  
+  if (!user) {
+    return res.send("Must be a TinyApp user to use this!");
+  } 
   res.redirect(`/urls/${tinyID}`);
 });
 
@@ -188,14 +217,15 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
-////    Edits existing URLs resource * * * * * * * * *
+////    Edits existing URLs resource *
 app.post("/urls/:id", (req, res) => {
-  console.log('---------- Edited:\n');
+  console.log('POST* * * * * * * * * * * * * * * * * Edited:\n');
 
-  const id = req.params.id;
-  const valueMod = req.body.longURLupdate;
-  console.log("-----------------------------", req.body.longURL);
-  urlDatabase[id] = valueMod;
+  const urlID = req.params.id;
+  const newURL = req.body.longURLupdate;
+  urlDatabase[urlID].longURL = newURL;
+
+  console.log("-----------------------------", urlDatabase);
   res.redirect("/urls");
 });
 
@@ -226,6 +256,7 @@ app.post("/logout", (req, res) => {
   console.log('--------- User logout:');
   
   const id = req.cookies.user_id;
+  console.log(id);
   res.clearCookie("user_id", id);
   res.redirect("/urls");
 });
