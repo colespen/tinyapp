@@ -10,27 +10,25 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <a class="nav-item nav-link" href="/register">Sign Up</a>
 
         <form class="form-inline" action="/login" method="POST">
-          <div style="position: absolute; right: 16px; padding-top: 2px">
-            <% if (user.email) { %>
-              <h7>
-                <%= `Logged in as ${user.email}!` %></h7>
-                  <button 
-                    formaction="/logout" 
-                    class="btn btn-primary btn-sm" style="margin-left: 14px; margin-bottom: 3px; padding-left: 8px">logout</button>
-                  <% } else { %>
-                      <input 
-                      class="form-control-sm" 
-                      type="text" 
-                      name="username" 
-                      placeholder="username" 
-                      style="width: 170px" 
-                      />
-                      <button 
-                        class="btn btn-primary btn-sm" style="margin-left: 8px; margin-bottom: 3px; padding-left: 8px">login</button>
-                      <% } %>
+          <div style="position: absolute; right: 16px">
+            <% if (user) { %>
+              <h7 style="font-size: 15px">
+                <%= `${user.email}` %>
+              </h7>
+              <button formaction="/logout" class="btn btn-primary btn-sm"
+                style="margin-left: 14px;padding-left: 8px">logout</button>
+              <% } else { %>
+                <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+                  <a class="btn-group-sm" href="/login">
+                    <button type="button" class="btn btn-primary">Login</button>
+                  </a>
+                  <a class="btn-group-sm" href="/register">
+                    <button type="button" class="btn btn-danger">Register</button>
+                  </a>
+                </div>
+                <% } %>
           </div>
         </form>
       </div>
