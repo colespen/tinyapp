@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const PORT = 8080; // default port 8080
@@ -71,7 +72,7 @@ const lookupUserByEmail = (email) => {
 const urlsForUser = (currentUser) => {
   let urls = {};
   const ids = Object.keys(urlDatabase); //making array
-  
+
   for (const id of ids) {
     // console.log(url_arr[u].userID);
     const url = urlDatabase[id]; // each indiv obj in list
@@ -80,7 +81,7 @@ const urlsForUser = (currentUser) => {
     }
   }
   return urls;
-}
+};
 
 
 ////////////////////////////////////////////////////
@@ -104,9 +105,9 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   const id = req.cookies.user_id;
   const user = users[id];
-  
+
   // 
-  
+
   const templateVars = {
     urls: urlDatabase,
     user
@@ -142,13 +143,13 @@ app.get("/urls/:id", (req, res) => {
 
   const urlID = req.params.id;
   const url = urlDatabase[urlID];
-  
+
   if (!url) {
-    return res.send("ID does not exist!")
+    return res.send("ID does not exist!");
   }
   // console.log("* * * * * * * * * * * * * * * ", {users, urlDatabase}, url);
   if (!user || url.userID !== user.id) {
-    return res.send("You don't have permission to edit this.")
+    return res.send("You don't have permission to edit this.");
   }
   const templateVars = {
     urlId: urlID,
@@ -162,7 +163,7 @@ app.get("/u/:id", (req, res) => {
   const id = req.params.id;
   //params is allowing access of keys or values within the url
   // console.log("GET* * * * * * * * * * * * * * * *",urlDatabase);
-  const url = urlDatabase[id].longURL; 
+  const url = urlDatabase[id].longURL;
 
   if (!url) { // if !undefined  (direct lookup in obj's)
     return res.send("URL not found.");
@@ -185,9 +186,9 @@ app.get("/register", (req, res) => {
 
 app.get("/login", (req, res) => {
   const user_id = req.cookies.user_id;
-  const user = users[user_id]
+  const user = users[user_id];
   if (user) {
-   return res.redirect("/urls");
+    return res.redirect("/urls");
   }
   res.render("urls_login", { user: null });
 });
@@ -211,7 +212,7 @@ app.post("/urls", (req, res) => { //*********** FIX !user redirect
   // console.log("* * * * * * * * * * * * * *", urlDatabase);
   if (!user) {
     return res.send("Must be a TinyApp user to use this!");
-  } 
+  }
   res.redirect(`/urls/${tinyID}`);
 });
 
@@ -225,15 +226,15 @@ app.post("/urls/:id/delete", (req, res) => {
   const user = users[user_id];
 
   if (!url) {
-    return res.send("ID does not exist!")
+    return res.send("ID does not exist!");
   }
   if (!user) {
-    return res.send("You must be logged in first.")
+    return res.send("You must be logged in first.");
   }
   if (url.userID !== user.id) {
-    return res.send("You don't have permission to delete that.")
+    return res.send("You don't have permission to delete that.");
   }
-  
+
   delete urlDatabase[urlID];
 
   res.redirect("/urls");
@@ -246,21 +247,21 @@ app.post("/urls/:id", (req, res) => {
   const url = urlDatabase[urlID];
 
   const newURL = req.body.longURLupdate;
-  
+
   const user_id = req.cookies.user_id;
   const user = users[user_id];
-  
+
   if (!url) {
-    return res.send("ID does not exist!")
+    return res.send("ID does not exist!");
   }
   if (!user) {
-    return res.send("You must be logged in first.")
+    return res.send("You must be logged in first.");
   }
   if (url.userID !== user.id) {
-    return res.send("You don't have permission to do that.")
+    return res.send("You don't have permission to do that.");
   }
-  
-  
+
+
   urlDatabase[urlID].longURL = newURL;
 
 
@@ -281,11 +282,13 @@ app.post("/login", (req, res) => {
   if (!userMatch) {
     return res.render("urls_403", { user: null });
   }
-  if (userMatch.password !== password) {
+  const passMatch = //checking matching
+  bcrypt.compareSync(password, userMatch.password);
+  if (!passMatch) {
     return res.render("urls_403", { user: null });
   }
-  const id = userMatch.id;  
-  //access id ----- already exists, dont need new cookie
+  const id = userMatch.id;
+
   res.cookie("user_id", id); //set cookie
   res.redirect("/urls");
 });
@@ -293,7 +296,7 @@ app.post("/login", (req, res) => {
 ////    Clears username cookie
 app.post("/logout", (req, res) => {
   // console.log('--------- User logout:');
-  
+
   const id = req.cookies.user_id;
   console.log(id);
   res.clearCookie("user_id", id);
@@ -304,9 +307,7 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   // console.log('---------- User added:');
   const { email, password } = req.body;
-
   const genId = generateRandomString() + "user";
-
   const userMatch = lookupUserByEmail(email);
 
   if (!email || !password) {
@@ -315,12 +316,15 @@ app.post("/register", (req, res) => {
   if (userMatch) {
     return res.render("urls_400", { user: null });
   }
+  // encrypt pass.
+  const hashedPass = bcrypt.hashSync(password, 10);
+
   users[genId] = {
     id: genId,
     email,
-    password
-    //destructured above, const { / / / /} = obj
+    password: hashedPass
   };
+
   res.cookie("user_id", genId);
   res.redirect("/urls");
 });
