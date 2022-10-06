@@ -78,6 +78,7 @@ app.get("/urls", (req, res) => {
   };
   ////    (loop through urls keys in index.ejs)
   ////    render method responds to requests by sending template an object with data template needs -> obj is passed to EJS templates
+ 
   res.render("urls_index", templateVars);
 });
 
@@ -88,6 +89,10 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user
   };
+
+  if (Object.keys(req.cookies).length === 0) {
+    return res.redirect("/login");
+  }
   res.render("urls_new", templateVars);
 });
 
@@ -104,19 +109,32 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
-  const newKey = req.params.id;
+  const id = req.params.id;
   //params is allowing access of keys or values within the url
-  const longURL = urlDatabase[newKey];
+  const url = urlDatabase[id]; 
+  // undefined if not found
+  // direct lookup in objects
+  if (!url) {
+    return res.send("URL not found.");
+  }
   ////    link new short ID to longURL
-  res.redirect(longURL);
+  res.redirect(url);
 });
 
 app.get("/register", (req, res) => {
+  // if (!req.cookies.user_id) {
+  //   return res.render("/urls");
+  // }
   res.render("urls_register", { user: null });
   ////    pass unnamed obj with empty user property
 });
 
 app.get("/login", (req, res) => {
+  const id = req.cookies.user_id
+  const user = users[id]
+  if (user) {
+   return res.redirect("/urls");
+  }
   res.render("urls_login", { user: null });
 });
 
@@ -129,10 +147,11 @@ app.get("/login", (req, res) => {
 //// <form> submit assigned via action and method attributes
 app.post("/urls", (req, res) => {
   console.log('---------- Added:\n', req.body); // Log the POST request body to the console
-
   const tinyID = generateRandomString();
   urlDatabase[tinyID] = req.body.longURL; //--> add new key: value to obj
-
+  // if (Object.keys(req.cookies).length === 0) {
+  //   return res.send("Must login before using TinyApp!");
+  // }
   res.redirect(`/urls/${tinyID}`);
 });
 
@@ -156,10 +175,9 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("/urls");
 });
 
-////    Sets username cookie
+////    Sets username cookie //shorten logic */
 app.post("/login", (req, res) => {
   console.log('---------- User login:\n', req.body);
-
 
   const { email, password } = req.body;
   const userMatch = lookupUserByEmail(email);
@@ -170,12 +188,9 @@ app.post("/login", (req, res) => {
   if (!userMatch) {
     return res.render("urls_403", { user: null });
   }
-
-  if (userMatch &&
-    userMatch.password !== password) {
+  if (userMatch.password !== password) {
     return res.render("urls_403", { user: null });
   }
-  
   const id = userMatch.id;  
   //access id ----- already exists, dont need new cookie
   res.cookie("user_id", id); //set cookie
@@ -185,7 +200,7 @@ app.post("/login", (req, res) => {
 ////    Clears username cookie
 app.post("/logout", (req, res) => {
   console.log('--------- User logout:');
-
+  
   const id = req.cookies.user_id;
   res.clearCookie("user_id", id);
   res.redirect("/urls");
@@ -199,7 +214,6 @@ app.post("/register", (req, res) => {
   const genId = generateRandomString() + "userid";
 
   const userMatch = lookupUserByEmail(email);
-  // console.log(userMatch);
 
   if (!email || !password) {
     return res.render("urls_400", { user: null });
@@ -207,17 +221,14 @@ app.post("/register", (req, res) => {
   if (userMatch) {
     return res.render("urls_400", { user: null });
   }
-
   users[genId] = {
     id: genId,
     email,
     password
     //destructured above, const { / / / /} = obj
   };
-  // console.log(users);
   res.cookie("user_id", genId);
   res.redirect("/urls");
-
 });
 
 
