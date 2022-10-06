@@ -104,6 +104,9 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   const id = req.cookies.user_id;
   const user = users[id];
+  
+  // 
+  
   const templateVars = {
     urls: urlDatabase,
     user
@@ -140,18 +143,18 @@ app.get("/urls/:id", (req, res) => {
   const urlID = req.params.id;
   const url = urlDatabase[urlID];
   
+  if (!url) {
+    return res.send("ID does not exist!")
+  }
+  // console.log("* * * * * * * * * * * * * * * ", {users, urlDatabase}, url);
+  if (!user || url.userID !== user.id) {
+    return res.send("You don't have permission to edit this.")
+  }
   const templateVars = {
     urlId: urlID,
     longURL: url.longURL, //(removed longURL)
     user
   };
-  // const urlIdMatches = urlsForUser(user.id);
-  // console.log("* * * * * * * * * * * * * * * ", {users, urlDatabase}, url);
-
-  if (!user || url.userID !== user.id) {
-    return res.send("You don't have permission to access this link.")
-  }
- 
   res.render("urls_show", templateVars);
 });
 
@@ -198,11 +201,10 @@ app.get("/login", (req, res) => {
 //// <form> submit assigned via action and method attributes
 app.post("/urls", (req, res) => { //*********** FIX !user redirect
   // console.log('---------- Added:\n', req.body);
-
   const user_id = req.cookies.user_id;
   const user = users[user_id];
   const tinyID = generateRandomString();
-  
+
   //--> add new key: value to obj
   urlDatabase[tinyID] = req.body; //removed.longURL
   urlDatabase[tinyID].userID = user.id; //removed.longURL
@@ -216,9 +218,23 @@ app.post("/urls", (req, res) => { //*********** FIX !user redirect
 ////   Removes URL resource (key:value pair) from obj with delete button
 app.post("/urls/:id/delete", (req, res) => {
   // console.log("---------- Resource removed:\n", req.params);
+  const urlID = req.params.id;
+  const url = urlDatabase[urlID];
 
-  const keyDel = req.params.id;
-  delete urlDatabase[keyDel];
+  const user_id = req.cookies.user_id;
+  const user = users[user_id];
+
+  if (!url) {
+    return res.send("ID does not exist!")
+  }
+  if (!user) {
+    return res.send("You must be logged in first.")
+  }
+  if (url.userID !== user.id) {
+    return res.send("You don't have permission to delete that.")
+  }
+  
+  delete urlDatabase[urlID];
 
   res.redirect("/urls");
 });
@@ -227,10 +243,26 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   // console.log('POST* * * * * * * * * * * * * * * * * Edited:\n');
   const urlID = req.params.id;
+  const url = urlDatabase[urlID];
+
   const newURL = req.body.longURLupdate;
+  
+  const user_id = req.cookies.user_id;
+  const user = users[user_id];
+  
+  if (!url) {
+    return res.send("ID does not exist!")
+  }
+  if (!user) {
+    return res.send("You must be logged in first.")
+  }
+  if (url.userID !== user.id) {
+    return res.send("You don't have permission to do that.")
+  }
+  
+  
   urlDatabase[urlID].longURL = newURL;
 
-  
 
   console.log("* * * * * * * * * * * * * * * ", urlID);
   res.redirect("/urls");
