@@ -114,7 +114,7 @@ app.get("/u/:id", (req, res) => {
   const url = urlDatabase[id]; 
   // undefined if not found
   // direct lookup in objects
-  if (!url) {
+  if (!url) { // if !undefined
     return res.send("URL not found.");
   }
   ////    link new short ID to longURL
@@ -122,15 +122,18 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  // if (!req.cookies.user_id) {
-  //   return res.render("/urls");
-  // }
+  const id = req.cookies.user_id;
+  const user = users[id];
+
+  if (user) { //if undefined
+    return res.redirect("/urls");
+  }
   res.render("urls_register", { user: null });
   ////    pass unnamed obj with empty user property
 });
 
 app.get("/login", (req, res) => {
-  const id = req.cookies.user_id
+  const id = req.cookies.user_id;
   const user = users[id]
   if (user) {
    return res.redirect("/urls");
