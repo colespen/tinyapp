@@ -27,11 +27,11 @@ app.use(morgan('dev'));
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
-    userID: "aJ48lW",
+    userID: "aJ48lWuser",
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "aJ48lW",
+    userID: "aJ48lWuser",
   },
 };
 
@@ -108,9 +108,10 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     user
   };
-  if (!user) {
-    return res.send("Please login first!");
-   }
+  //  ******************** FIX below!
+  // if (!user) {
+  //   return res.send("Please login first!");
+  //  }
   ////    (loop through urls keys in index.ejs)
   ////    render method responds to requests by sending template an object with data template needs -> obj is passed to EJS templates
   res.render("urls_index", templateVars);
@@ -138,13 +139,19 @@ app.get("/urls/:id", (req, res) => {
 
   const urlID = req.params.id;
   const url = urlDatabase[urlID];
-
+  
   const templateVars = {
     urlId: urlID,
     longURL: url.longURL, //(removed longURL)
     user
   };
-  // console.log("GET * * * * * * * * * * * * * * * *", templateVars.longURL);
+  // const urlIdMatches = urlsForUser(user.id);
+  // console.log("* * * * * * * * * * * * * * * ", {users, urlDatabase}, url);
+
+  if (!user || url.userID !== user.id) {
+    return res.send("You don't have permission to access this link.")
+  }
+ 
   res.render("urls_show", templateVars);
 });
 
@@ -154,18 +161,17 @@ app.get("/u/:id", (req, res) => {
   // console.log("GET* * * * * * * * * * * * * * * *",urlDatabase);
   const url = urlDatabase[id].longURL; 
 
-  // console.log("GET /u/:id - id* * * * * * * * * * * * * * *", urlDatabase[id].longURL);
-
   if (!url) { // if !undefined  (direct lookup in obj's)
     return res.send("URL not found.");
   }
+
   ////    link new short ID to longURL
   res.redirect(url);
 });
 
 app.get("/register", (req, res) => {
-  const id = req.cookies.user_id;
-  const user = users[id];
+  const user_id = req.cookies.user_id;
+  const user = users[user_id];
 
   if (user) { //if undefined
     return res.redirect("/urls");
@@ -175,8 +181,8 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  const id = req.cookies.user_id;
-  const user = users[id]
+  const user_id = req.cookies.user_id;
+  const user = users[user_id]
   if (user) {
    return res.redirect("/urls");
   }
@@ -191,16 +197,16 @@ app.get("/login", (req, res) => {
 
 //// <form> submit assigned via action and method attributes
 app.post("/urls", (req, res) => { //*********** FIX !user redirect
-  console.log('---------- Added:\n', req.body);
+  // console.log('---------- Added:\n', req.body);
 
-  const id = req.cookies.user_id;
-  const user = users[id];
+  const user_id = req.cookies.user_id;
+  const user = users[user_id];
   const tinyID = generateRandomString();
   
   //--> add new key: value to obj
   urlDatabase[tinyID] = req.body; //removed.longURL
-  // console.log("* * * * * * * * * * * ", urlDatabase);
-  
+  urlDatabase[tinyID].userID = user.id; //removed.longURL
+  // console.log("* * * * * * * * * * * * * *", urlDatabase);
   if (!user) {
     return res.send("Must be a TinyApp user to use this!");
   } 
@@ -209,7 +215,7 @@ app.post("/urls", (req, res) => { //*********** FIX !user redirect
 
 ////   Removes URL resource (key:value pair) from obj with delete button
 app.post("/urls/:id/delete", (req, res) => {
-  console.log("---------- Resource removed:\n", req.params);
+  // console.log("---------- Resource removed:\n", req.params);
 
   const keyDel = req.params.id;
   delete urlDatabase[keyDel];
@@ -219,19 +225,20 @@ app.post("/urls/:id/delete", (req, res) => {
 
 ////    Edits existing URLs resource *
 app.post("/urls/:id", (req, res) => {
-  console.log('POST* * * * * * * * * * * * * * * * * Edited:\n');
-
+  // console.log('POST* * * * * * * * * * * * * * * * * Edited:\n');
   const urlID = req.params.id;
   const newURL = req.body.longURLupdate;
   urlDatabase[urlID].longURL = newURL;
 
-  console.log("-----------------------------", urlDatabase);
+  
+
+  console.log("* * * * * * * * * * * * * * * ", urlID);
   res.redirect("/urls");
 });
 
 ////    Sets username cookie 
 app.post("/login", (req, res) => {
-  console.log('---------- User login:\n', req.body);
+  // console.log('---------- User login:\n', req.body);
 
   const { email, password } = req.body;
   const userMatch = lookupUserByEmail(email);
@@ -253,7 +260,7 @@ app.post("/login", (req, res) => {
 
 ////    Clears username cookie
 app.post("/logout", (req, res) => {
-  console.log('--------- User logout:');
+  // console.log('--------- User logout:');
   
   const id = req.cookies.user_id;
   console.log(id);
@@ -263,10 +270,10 @@ app.post("/logout", (req, res) => {
 
 ////    Adds new user to object
 app.post("/register", (req, res) => {
-  console.log('---------- User added:');
+  // console.log('---------- User added:');
   const { email, password } = req.body;
 
-  const genId = generateRandomString() + "userid";
+  const genId = generateRandomString() + "user";
 
   const userMatch = lookupUserByEmail(email);
 
