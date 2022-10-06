@@ -1,5 +1,6 @@
 const express = require("express");
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const morgan = require('morgan');
 const bcrypt = require('bcryptjs');
 
@@ -13,7 +14,11 @@ app.set("view engine", "ejs");
 ////////////////////////////////////////////////////
 
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+// app.use(cookieParser());
+app.use(cookieSession({
+  name: 'usercookie',
+  keys: ['74hf7', 'AA88s7s7*DHj3#']
+}));
 app.use(morgan('dev'));
 
 ////////////////////////////////////////////////////
@@ -89,7 +94,7 @@ const urlsForUser = (currentUser) => {
 ////////////////////////////////////////////////////
 
 app.get("/", (req, res) => {
-  const id = req.cookies.user_id;
+  const id = req.session.user_id;
   const user = users[id];
   const templateVars = {
     urls: urlDatabase,
@@ -103,7 +108,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const id = req.cookies.user_id;
+  const id = req.session.user_id;
   const user = users[id];
 
   // 
@@ -124,7 +129,7 @@ app.get("/urls", (req, res) => {
 
 
 app.get("/urls/new", (req, res) => { ///FIX !user REDIRECT*********
-  const id = req.cookies.user_id;
+  const id = req.session.user_id;
   const user = users[id];
   const templateVars = {
     user
@@ -138,7 +143,7 @@ app.get("/urls/new", (req, res) => { ///FIX !user REDIRECT*********
 
 
 app.get("/urls/:id", (req, res) => {
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const user = users[user_id];
 
   const urlID = req.params.id;
@@ -174,7 +179,7 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const user = users[user_id];
 
   if (user) { //if undefined
@@ -185,7 +190,7 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const user = users[user_id];
   if (user) {
     return res.redirect("/urls");
@@ -202,7 +207,7 @@ app.get("/login", (req, res) => {
 //// <form> submit assigned via action and method attributes
 app.post("/urls", (req, res) => { //*********** FIX !user redirect
   // console.log('---------- Added:\n', req.body);
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const user = users[user_id];
   const tinyID = generateRandomString();
 
@@ -222,7 +227,7 @@ app.post("/urls/:id/delete", (req, res) => {
   const urlID = req.params.id;
   const url = urlDatabase[urlID];
 
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const user = users[user_id];
 
   if (!url) {
@@ -248,7 +253,7 @@ app.post("/urls/:id", (req, res) => {
 
   const newURL = req.body.longURLupdate;
 
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const user = users[user_id];
 
   if (!url) {
@@ -289,7 +294,7 @@ app.post("/login", (req, res) => {
   }
   const id = userMatch.id;
 
-  res.cookie("user_id", id); //set cookie
+  req.session.user_id = id; //set cookie
   res.redirect("/urls");
 });
 
@@ -297,9 +302,9 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   // console.log('--------- User logout:');
 
-  const id = req.cookies.user_id;
-  console.log(id);
-  res.clearCookie("user_id", id);
+  const id = req.session.user_id;
+  // console.log(id);
+  req.session = null;;
   res.redirect("/urls");
 });
 
@@ -307,7 +312,7 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   // console.log('---------- User added:');
   const { email, password } = req.body;
-  const genId = generateRandomString() + "user";
+  const genId = generateRandomString();
   const userMatch = lookupUserByEmail(email);
 
   if (!email || !password) {
@@ -325,7 +330,7 @@ app.post("/register", (req, res) => {
     password: hashedPass
   };
 
-  res.cookie("user_id", genId);
+  req.session.user_id = genId;
   res.redirect("/urls");
 });
 
