@@ -19,10 +19,23 @@ app.use(morgan('dev'));
 ////    In-memory Object 
 ////////////////////////////////////////////////////
 
+// const urlDatabase = {
+//   "b2xVn2": "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com"
+// };
+
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
+
+
 const users = {
 };
 
@@ -57,6 +70,7 @@ const lookupUserByEmail = (email) => {
 };
 
 
+
 ////////////////////////////////////////////////////
 ////    GET Routes
 ////////////////////////////////////////////////////
@@ -78,21 +92,20 @@ app.get("/urls", (req, res) => {
   };
   ////    (loop through urls keys in index.ejs)
   ////    render method responds to requests by sending template an object with data template needs -> obj is passed to EJS templates
- 
+  // console.log(urlDatabase);
   res.render("urls_index", templateVars);
 });
 
 
-app.get("/urls/new", (req, res) => {
+app.get("/urls/new", (req, res) => { ///FIX REDIRECT****
   const id = req.cookies.user_id;
   const user = users[id];
   const templateVars = {
     user
   };
-
-  if (Object.keys(req.cookies).length === 0) {
-    return res.redirect("/login");
-  }
+  // if (!user) {
+  //   return res.redirect("/login");
+  // }
   res.render("urls_new", templateVars);
 });
 
@@ -149,12 +162,19 @@ app.get("/login", (req, res) => {
 
 //// <form> submit assigned via action and method attributes
 app.post("/urls", (req, res) => {
-  console.log('---------- Added:\n', req.body); // Log the POST request body to the console
+  console.log('---------- Added:\n', req.body);
+
+  const id = req.cookies.user_id;
+  const user = users[id];
   const tinyID = generateRandomString();
-  urlDatabase[tinyID] = req.body.longURL; //--> add new key: value to obj
-  // if (Object.keys(req.cookies).length === 0) {
-  //   return res.send("Must login before using TinyApp!");
-  // }
+  
+  //--> add new key: value to obj
+  urlDatabase[tinyID] = req.body.longURL; 
+  console.log("* * * * * * * * * * * ", req.body.longURL);
+
+  // if (!user) {
+  //   return res.send("Must be a TinyApp user to use this!");
+  // } ****************** FIX res.send() above
   res.redirect(`/urls/${tinyID}`);
 });
 
@@ -168,17 +188,18 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
-////    Edits existing URLs resource
+////    Edits existing URLs resource * * * * * * * * *
 app.post("/urls/:id", (req, res) => {
-  console.log('---------- Edited:\n', req.params, req.body);
+  console.log('---------- Edited:\n');
 
-  const keyMod = req.params.id;
+  const id = req.params.id;
   const valueMod = req.body.longURLupdate;
-  urlDatabase[keyMod] = valueMod;
+  console.log("-----------------------------", req.body.longURL);
+  urlDatabase[id] = valueMod;
   res.redirect("/urls");
 });
 
-////    Sets username cookie //shorten logic */
+////    Sets username cookie 
 app.post("/login", (req, res) => {
   console.log('---------- User login:\n', req.body);
 
@@ -211,7 +232,7 @@ app.post("/logout", (req, res) => {
 
 ////    Adds new user to object
 app.post("/register", (req, res) => {
-  console.log('---------------------------- User added:');
+  console.log('---------- User added:');
   const { email, password } = req.body;
 
   const genId = generateRandomString() + "userid";
