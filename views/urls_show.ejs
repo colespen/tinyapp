@@ -27,11 +27,12 @@
 
       <form action="/urls/<%=urlId%>" method="POST">
         <div class="form-group mb-2">
-          <label for="longURLupdate">New URL:</label>
+          <label for="longURLupdate">Edit URL:</label>
           <input 
             type="text" 
             name="longURLupdate" 
-            placeholder="http://" 
+            placeholder="https://"
+            value="<%=longURL%>" 
             style="width: 300px; margin: 12px" 
             />
           <button class="btn btn-primary">Submit</button>

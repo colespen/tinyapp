@@ -14,19 +14,21 @@
         <form class="form-inline" action="/logout" method="POST">
           <div style="position: absolute; right: 16px">
             <% if (user) { %>
-              <h7 style="font-size: 15px">
-                <%= `${user.email}` %>
-              </h7>
-              <button formaction="/logout" class="btn btn-primary btn-sm"
-                style="margin-left: 14px;padding-left: 8px">logout</button>
-              <% } else { %>
-                <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                  <a class="nav-item nav-link" href="/login">
-                    Login</a>
-                  <a class="nav-item nav-link" href="/register">
-                    Register</a>
-                </div>
-                <% } %>
+              
+                <h7 style="font-size: 15px">
+                  <%= `${user.email}` %>
+                </h7>
+                <button formaction="/logout" class="btn btn-primary btn-sm"
+                  style="margin-left: 14px;padding-left: 8px">logout</button>
+                <% } else { %>
+                  <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+                    <a class="nav-item nav-link" href="/login">
+                      Login</a>
+                    <a class="nav-item nav-link" href="/register">
+                      Register</a>
+                  </div>
+              
+              <% } %>
           </div>
         </form>
       </div>
