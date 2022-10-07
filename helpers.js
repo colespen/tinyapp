@@ -7,8 +7,9 @@ const getUserByEmail = function(email, usersDatabase) {
       return usersDatabase[user];
     }
   }
-  return null;
+  return undefined; //was null
 };
+
 ////    short-URL-Code generator
 const generateRandomString = () => {
   // 6 characters long
@@ -37,10 +38,6 @@ const urlsForUser = (currentUser, database) => {
   }
   return urls;
 };
-
-
-
-
 
 
 // ////    looks up user info by email *OLD*

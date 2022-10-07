@@ -26,46 +26,10 @@ app.use(morgan('dev'));
 ////////////////////////////////////////////////////////////
 
 const urlDatabase = {
-  // b6UTxQ: {
-  //   longURL: "https://www.tsn.ca",
-  //   userID: "aJ48lWuser",
-  // },
-  // i3BoGr: {
-  //   longURL: "https://www.google.ca",
-  //   userID: "aJ48lWuser",
-  // },
 };
 
 const users = {
-  g122CDtE: {
-    id: 'gdCweweE',
-    email: 'test@lala.ca',
-    password: 'test1234'
-  },
-  ACDtE: {
-    id: 'gdCDtE',
-    email: 'joogle.ca',
-    password: 'test456'
-  }
 };
-
-
-
-
-// ////    filter URLs by matching userID's
-// const urlsForUser = (currentUser) => {
-//   let urls = {};
-//   const ids = Object.keys(urlDatabase); //making array
-
-//   for (const id of ids) {
-//     // console.log(url_arr[u].userID);
-//     const url = urlDatabase[id]; // each indiv obj in list
-//     if (url.userID === currentUser) {
-//       urls[id] = url;
-//     }
-//   }
-//   return urls;
-// };
 
 
 ////////////////////////////////////////////////////////////
@@ -75,8 +39,6 @@ const users = {
 app.get("/", (req, res) => {
   const id = req.session.user_id;
   const user = users[id];
-
-
 
   const templateVars = {
     urls: null,
