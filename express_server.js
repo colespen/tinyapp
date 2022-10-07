@@ -2,6 +2,8 @@ const express = require("express");
 const cookieSession = require('cookie-session');
 const morgan = require('morgan');
 const bcrypt = require('bcryptjs');
+const { getUserByEmail, generateRandomString, urlsForUser 
+} = require('./helpers');
 
 const app = express();
 const PORT = 8080; // default port 8080
@@ -47,65 +49,23 @@ const users = {
   }
 };
 
-////////////////////////////////////////////////////////////
-////    Functions temp location
-////////////////////////////////////////////////////////////
-
-////    short-URL-Code generator
-const generateRandomString = () => {
-  // 6 characters long
-  // generate letters and integers combined together randomly
-  let tinyID = '';
-  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-  const charLength = chars.length;
-  for (let i = 0; i < 6; i++) {
-    tinyID += chars.charAt(Math.floor(Math.random() *
-      charLength));
-  }
-  return tinyID;
-};
-
-////
-// user database into databse
-// compare between the email in database 
-// and email of login/regsiter
-
-const getUserByEmail = function(email, usersDatabase) {
-  for (const user in usersDatabase) {
-    if (usersDatabase[user].email === email) {
-      return usersDatabase[user];
-    }
-  }
-  return null;
-};
 
 
-// ////    looks up user info by email
-// const lookupUserByEmail = (email) => {
 
-//   for (const id in users) {
+// ////    filter URLs by matching userID's
+// const urlsForUser = (currentUser) => {
+//   let urls = {};
+//   const ids = Object.keys(urlDatabase); //making array
 
-//     if (users[id].email === email) {
-//       return users[id]; // return on matching ID user object!!
+//   for (const id of ids) {
+//     // console.log(url_arr[u].userID);
+//     const url = urlDatabase[id]; // each indiv obj in list
+//     if (url.userID === currentUser) {
+//       urls[id] = url;
 //     }
 //   }
-//   return null;
+//   return urls;
 // };
-
-////    filter URLs by matching userID's
-const urlsForUser = (currentUser) => {
-  let urls = {};
-  const ids = Object.keys(urlDatabase); //making array
-
-  for (const id of ids) {
-    // console.log(url_arr[u].userID);
-    const url = urlDatabase[id]; // each indiv obj in list
-    if (url.userID === currentUser) {
-      urls[id] = url;
-    }
-  }
-  return urls;
-};
 
 
 ////////////////////////////////////////////////////////////
@@ -139,7 +99,7 @@ app.get("/urls", (req, res) => {
     return res.send("Please login first!");
   }
 
-  const userUrls = urlsForUser(user.id);
+  const userUrls = urlsForUser(user.id, urlDatabase);
 
   const templateVars = {
     urls: userUrls,
@@ -339,7 +299,7 @@ app.post("/register", (req, res) => {
   // console.log('---------- User added:');
   const { email, password } = req.body;
   const genId = generateRandomString();
-  const userMatch = getUserByEmail(email, users)
+  const userMatch = getUserByEmail(email, users);
   // const userMatch = lookupUserByEmail(email);
 
   if (!email || !password) {
@@ -365,6 +325,7 @@ app.post("/register", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
 
 
 
