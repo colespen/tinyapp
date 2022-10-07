@@ -1,5 +1,4 @@
 const express = require("express");
-// const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const morgan = require('morgan');
 const bcrypt = require('bcryptjs');
@@ -9,21 +8,20 @@ const PORT = 8080; // default port 8080
 ////    tell Express app to use EJS as its templating engine ---->
 app.set("view engine", "ejs");
 
-////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 ////    Middleware which translates and parses body
-////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 
 app.use(express.urlencoded({ extended: true }));
-// app.use(cookieParser());
 app.use(cookieSession({
   name: 'usercookie',
   keys: ['74hf7', 'AA88s7s7*DHj3#']
 }));
 app.use(morgan('dev'));
 
-////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 ////    In-memory Object 
-////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 
 // const urlDatabase = {
 //   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -31,23 +29,34 @@ app.use(morgan('dev'));
 // };
 
 const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "aJ48lWuser",
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "aJ48lWuser",
-  },
+  // b6UTxQ: {
+  //   longURL: "https://www.tsn.ca",
+  //   userID: "aJ48lWuser",
+  // },
+  // i3BoGr: {
+  //   longURL: "https://www.google.ca",
+  //   userID: "aJ48lWuser",
+  // },
 };
 
 
 const users = {
+  g122CDtE: {
+    id: 'gdCweweE',
+    email: 'test@lala.ca',
+    password: 'test1234'
+  },
+  ACDtE: {
+    id: 'gdCDtE',
+    email: 'joogle.ca',
+    password: 'test456'
+  }
 };
 
-////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
 ////    Functions temp location
-////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 
 ////    short-URL-Code generator
 const generateRandomString = () => {
@@ -62,6 +71,22 @@ const generateRandomString = () => {
   }
   return tinyID;
 };
+
+////
+// user database into databse
+// compare between the email in database 
+// and email of login/regsiter
+
+const getUserByEmail = function(email, usersDatabase) {
+  for (const user in usersDatabase) {
+    if (usersDatabase[user].email === email) {
+      return usersDatabase[user];
+    }
+  }
+  return null;
+};
+
+
 ////    looks up user info by email
 const lookupUserByEmail = (email) => {
 
@@ -71,8 +96,9 @@ const lookupUserByEmail = (email) => {
       return users[id]; // return on matching ID user object!!
     }
   }
-  return null;        //OUTSIDE of Loop!!!
+  return null;
 };
+
 ////    filter URLs by matching userID's
 const urlsForUser = (currentUser) => {
   let urls = {};
@@ -89,38 +115,44 @@ const urlsForUser = (currentUser) => {
 };
 
 
-////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 ////    GET Routes
-////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 
 app.get("/", (req, res) => {
   const id = req.session.user_id;
   const user = users[id];
+
+
+
   const templateVars = {
-    urls: urlDatabase,
+    urls: null,
     user
   };
-  res.render("urls_index", templateVars);
+  res.render("urls_home", templateVars);
 });
+
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+
 app.get("/urls", (req, res) => {
   const id = req.session.user_id;
   const user = users[id];
+  console.log(users);
+  if (!user) {
+    return res.send("Please login first!");
+  }
 
-  // 
+  const userUrls = urlsForUser(user.id);
 
   const templateVars = {
-    urls: urlDatabase,
+    urls: userUrls,
     user
   };
   //  ******************** FIX below!
-  // if (!user) {
-  //   return res.send("Please login first!");
-  //  }
   ////    (loop through urls keys in index.ejs)
   ////    render method responds to requests by sending template an object with data template needs -> obj is passed to EJS templates
   res.render("urls_index", templateVars);
@@ -200,9 +232,9 @@ app.get("/login", (req, res) => {
 
 
 
-////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 ////    POST Routes
-////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 
 //// <form> submit assigned via action and method attributes
 app.post("/urls", (req, res) => { //*********** FIX !user redirect
@@ -288,7 +320,7 @@ app.post("/login", (req, res) => {
     return res.render("urls_403", { user: null });
   }
   const passMatch = //checking matching
-  bcrypt.compareSync(password, userMatch.password);
+    bcrypt.compareSync(password, userMatch.password);
   if (!passMatch) {
     return res.render("urls_403", { user: null });
   }
@@ -305,7 +337,7 @@ app.post("/logout", (req, res) => {
   const id = req.session.user_id;
   // console.log(id);
   req.session = null;;
-  res.redirect("/urls");
+  res.redirect("/");
 });
 
 ////    Adds new user to object
