@@ -12,8 +12,7 @@ const getUserByEmail = function(email, usersDatabase) {
 
 ////    short-URL-Code generator
 const generateRandomString = () => {
-  // 6 characters long
-  // generate letters and integers combined together randomly
+  
   let tinyID = '';
   const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   const charLength = chars.length;
@@ -38,19 +37,6 @@ const urlsForUser = (currentUser, database) => {
   }
   return urls;
 };
-
-
-// ////    looks up user info by email *OLD*
-// const lookupUserByEmail = (email) => {
-
-//   for (const id in users) {
-
-//     if (users[id].email === email) {
-//       return users[id]; // return on matching ID user object!!
-//     }
-//   }
-//   return null;
-// };
 
 module.exports = { 
   getUserByEmail, generateRandomString, urlsForUser

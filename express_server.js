@@ -10,9 +10,9 @@ const PORT = 8080; // default port 8080
 ////    tell Express app to use EJS as its templating engine ---->
 app.set("view engine", "ejs");
 
-////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 ////    Middleware which translates and parses body
-////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieSession({
@@ -21,9 +21,9 @@ app.use(cookieSession({
 }));
 app.use(morgan('dev'));
 
-////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 ////    In-memory Object 
-////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 
 const urlDatabase = {
 };
@@ -32,11 +32,12 @@ const users = {
 };
 
 
-////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 ////    GET Routes
-////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 
 app.get("/", (req, res) => {
+
   const id = req.session.user_id;
   const user = users[id];
 
@@ -47,35 +48,31 @@ app.get("/", (req, res) => {
   res.render("urls_home", templateVars);
 });
 
-
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
 
 app.get("/urls", (req, res) => {
+  
   const id = req.session.user_id;
   const user = users[id];
-  console.log(users);
+ 
   if (!user) {
-    return res.send("Please login first!");
+    return res.render("urls_gologin", { user: null });
   }
-
   const userUrls = urlsForUser(user.id, urlDatabase);
 
   const templateVars = {
     urls: userUrls,
     user
   };
-  //  ******************** FIX below!
-  ////    (loop through urls keys in index.ejs)
-  ////    render method responds to requests by sending template an object with data template needs -> obj is passed to EJS templates
   res.render("urls_index", templateVars);
-  // console.log("* * * * * * * * * * * ", urlDatabase);
 });
 
 
-app.get("/urls/new", (req, res) => { ///FIX !user REDIRECT*********
+app.get("/urls/new", (req, res) => { 
+  
   const id = req.session.user_id;
   const user = users[id];
   const templateVars = {
@@ -84,7 +81,6 @@ app.get("/urls/new", (req, res) => { ///FIX !user REDIRECT*********
   if (!user) {
     return res.redirect("/login");
   }
-  // console.log("GET* * * * * * * * * * * * * * * * * * *",templateVars)
   res.render("urls_new", templateVars);
 });
 
@@ -110,6 +106,7 @@ app.get("/urls/:id", (req, res) => {
   };
   res.render("urls_show", templateVars);
 });
+
 
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
@@ -147,9 +144,9 @@ app.get("/login", (req, res) => {
 
 
 
-////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 ////    POST Routes
-////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
 
 //// <form> submit assigned via action and method attributes
 app.post("/urls", (req, res) => { //*********** FIX !user redirect
@@ -213,11 +210,8 @@ app.post("/urls/:id", (req, res) => {
     return res.send("You don't have permission to do that.");
   }
 
-
   urlDatabase[urlID].longURL = newURL;
 
-
-  console.log("* * * * * * * * * * * * * * * ", urlID);
   res.redirect("/urls");
 });
 
