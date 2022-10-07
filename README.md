@@ -9,10 +9,10 @@ Enjoy!
 ## Final Product
 
 !["home page"](https://github.com/colespen/tinyapp/blob/master/docs/urls-home.png)
+!["edit, delete and access personal tinyURLs securely!"](https://github.com/colespen/tinyapp/blob/master/docs/urls-myurls.png)
+!["create tinyURL ID"](https://github.com/colespen/tinyapp/blob/master/docs/urls-add.png)
 !["login screen"](https://github.com/colespen/tinyapp/blob/master/docs/urls-login.png)
 !["register"](https://github.com/colespen/tinyapp/blob/master/docs/urls-reg.png)
-!["create tinyURL ID"](https://github.com/colespen/tinyapp/blob/master/docs/urls-add.png)
-!["edit, delete and access personal tinyURLs securely!"](https://github.com/colespen/tinyapp/blob/master/docs/urls-myurls.png)
 
 ## Dependencies
 
