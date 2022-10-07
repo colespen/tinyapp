@@ -23,11 +23,6 @@ app.use(morgan('dev'));
 ////    In-memory Object 
 ////////////////////////////////////////////////////////////
 
-// const urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com"
-// };
-
 const urlDatabase = {
   // b6UTxQ: {
   //   longURL: "https://www.tsn.ca",
@@ -38,7 +33,6 @@ const urlDatabase = {
   //   userID: "aJ48lWuser",
   // },
 };
-
 
 const users = {
   g122CDtE: {
@@ -52,7 +46,6 @@ const users = {
     password: 'test456'
   }
 };
-
 
 ////////////////////////////////////////////////////////////
 ////    Functions temp location
@@ -87,17 +80,17 @@ const getUserByEmail = function(email, usersDatabase) {
 };
 
 
-////    looks up user info by email
-const lookupUserByEmail = (email) => {
+// ////    looks up user info by email
+// const lookupUserByEmail = (email) => {
 
-  for (const id in users) {
+//   for (const id in users) {
 
-    if (users[id].email === email) {
-      return users[id]; // return on matching ID user object!!
-    }
-  }
-  return null;
-};
+//     if (users[id].email === email) {
+//       return users[id]; // return on matching ID user object!!
+//     }
+//   }
+//   return null;
+// };
 
 ////    filter URLs by matching userID's
 const urlsForUser = (currentUser) => {
@@ -311,7 +304,8 @@ app.post("/login", (req, res) => {
   // console.log('---------- User login:\n', req.body);
 
   const { email, password } = req.body;
-  const userMatch = lookupUserByEmail(email);
+  const userMatch = getUserByEmail(email, users);
+  // const userMatch = lookupUserByEmail(email);
 
   if (!email || !password) {
     return res.render("urls_403", { user: null });
@@ -345,7 +339,8 @@ app.post("/register", (req, res) => {
   // console.log('---------- User added:');
   const { email, password } = req.body;
   const genId = generateRandomString();
-  const userMatch = lookupUserByEmail(email);
+  const userMatch = getUserByEmail(email, users)
+  // const userMatch = lookupUserByEmail(email);
 
   if (!email || !password) {
     return res.render("urls_400", { user: null });
