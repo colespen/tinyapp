@@ -79,7 +79,7 @@ app.get("/urls/new", (req, res) => {
     user
   };
   if (!user) {
-    return res.redirect("/login");
+    return res.render("urls_gologin", { user: null });
   }
   res.render("urls_new", templateVars);
 });
